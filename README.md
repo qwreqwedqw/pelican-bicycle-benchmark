@@ -1,5 +1,5 @@
 # 🦤 AI 大模型对决 ·「鹈鹕骑自行车」测试 (Pelican on a Bicycle Benchmark)
-
+网站直达：https://qwreqwedqw.github.io/pelican-bicycle-benchmark/
 > **极高思考强度下的 AI 图形生成与物理连杆代码硬核对决**  
 > 参测模型：**Google Gemini 4 Argon** vs **Anthropic Claude Opus 5.5**
 
