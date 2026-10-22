@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 大模型实力巅峰对决 · 鹈鹕骑自行车测试 (Pelican on a Bicycle Benchmark)</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦤</text></svg>">
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: rgba(22, 30, 49, 0.85);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent-blue: #3b82f6;
+      --accent-orange: #f97316;
+      --text: #f3f4f6;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* 顶部导航 */
+    header {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(11, 15, 25, 0.85) 100%);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 14px 24px;
+    }
+
+    .header-container {
+      max-width: 1700px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      font-size: 28px;
+      line-height: 1;
+      filter: drop-shadow(0 0 10px rgba(249, 115, 22, 0.5));
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #ffffff 30%, #93c5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* 视图切换 */
+    .view-switcher {
+      display: flex;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--card-border);
+      border-radius: 999px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 7px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .nav-btn:hover {
+      color: #fff;
+    }
+
+    .nav-btn.active {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .action-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.03);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .action-link:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* 主体内容 */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      max-width: 1700px;
+      width: 100%;
+      margin: 0 auto;
+      gap: 18px;
+    }
+
+    /* 测试规范与评测背景卡片 */
+    .test-spec-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.75) 0%, rgba(15, 23, 42, 0.8) 100%);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 18px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .spec-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .spec-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .spec-desc {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+
+    .spec-badges {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .spec-badge-box {
+      background: rgba(15, 23, 42, 0.7);
+      border-radius: 10px;
+      padding: 12px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .spec-badge-box.gemini {
+      border-left: 3px solid #3b82f6;
+    }
+
+    .spec-badge-box.claude {
+      border-left: 3px solid #f97316;
+    }
+
+    .spec-model-name {
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .spec-badge-box.gemini .spec-model-name { color: #93c5fd; }
+    .spec-badge-box.claude .spec-model-name { color: #fdba74; }
+
+    .spec-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .tag-blue { background: rgba(59, 130, 246, 0.18); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.35); }
+    .tag-orange { background: rgba(249, 115, 22, 0.18); color: #fdba74; border: 1px solid rgba(249, 115, 22, 0.35); }
+    .tag-purple { background: rgba(139, 92, 246, 0.18); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.35); }
+
+    /* 视窗容器 */
+    .display-container {
+      flex: 1;
+      min-height: 700px;
+      display: grid;
+      gap: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .display-container.mode-split {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .display-container.mode-single {
+      grid-template-columns: 1fr;
+    }
+
+    @media (max-width: 1080px) {
+      .display-container.mode-split {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .model-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      position: relative;
+    }
+
+    .model-header {
+      padding: 12px 18px;
+      background: rgba(15, 23, 42, 0.7);
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .model-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .model-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .model-tag {
+      font-size: 11px;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .model-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: 6px;
+      text-decoration: none;
+      border: 1px solid transparent;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border-color: var(--card-border);
+    }
+
+    .iframe-wrapper {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      min-height: 640px;
+      position: relative;
+      background: #0d121f;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* 底部评测总结 */
+    .benchmark-footer {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 22px 24px;
+    }
+
+    .benchmark-footer h3 {
+      font-size: 16px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #e2e8f0;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .comp-item {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .comp-item h4 {
+      font-size: 14px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .comp-item.gemini h4 { color: #60a5fa; }
+    .comp-item.claude h4 { color: #fb923c; }
+
+    .comp-item p {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    footer {
+      text-align: center;
+      padding: 22px 20px;
+      font-size: 12px;
+      color: #64748b;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部导航 -->
+  <header>
+    <div class="header-container">
+      <div class="brand">
+        <span class="brand-icon">🦤</span>
+        <div>
+          <div class="brand-title">AI 大模型对决 · 鹈鹕骑自行车测试</div>
+          <div class="brand-subtitle">Gemini 4 Argon vs Claude Opus 5.5 · 极限思考强度基准测试</div>
+        </div>
+      </div>
+
+      <!-- 视图切换 -->
+      <div class="view-switcher">
+        <button class="nav-btn active" id="btn-split" onclick="switchView('split')">
+          <span>⚖️</span> 双屏对比
+        </button>
+        <button class="nav-btn" id="btn-gemini" onclick="switchView('gemini')">
+          <span>🔷</span> Gemini 4 Argon
+        </button>
+        <button class="nav-btn" id="btn-claude" onclick="switchView('claude')">
+          <span>🟧</span> Claude Opus 5.5
+        </button>
+      </div>
+
+      <!-- GitHub 仓库外链 -->
+      <div class="actions">
+        <a href="https://github.com/qwreqwedqw/pelican-bicycle-benchmark" target="_blank" class="action-link">
+          <span>🐙</span> GitHub 仓库
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主体内容 -->
+  <main>
+    <!-- 测试环境与规格特别标明 -->
+    <div class="test-spec-card">
+      <div class="spec-header">
+        <div class="spec-title">
+          <span>🎯</span> 测试基准：严格单轮对话与极限思考深度
+        </div>
+      </div>
+      <p class="spec-desc">
+        本次评测限定仅对比 <strong>Google Gemini 4 Argon</strong> 与 <strong>Anthropic Claude Opus 5.5</strong>。两份代码均为大模型在<strong>最高/极高思考强度</strong>下、通过单轮 Prompt 一次性生成的纯前端 SVG/Web 动画，<strong>完全排除 Agent（智能体多步循环与外部工具）辅助</strong>，真实反映纯大模型的空间想象与机械结构代码编排极限能力。
+      </p>
+      
+      <div class="spec-badges">
+        <!-- Gemini 规格 -->
+        <div class="spec-badge-box gemini">
+          <div class="spec-model-name">🔷 Google Gemini 4 Argon</div>
+          <div class="spec-tags">
+            <span class="tag tag-blue">平台：Google AI Studio</span>
+            <span class="tag tag-blue">思考强度：拉到最高 (Max Thinking)</span>
+            <span class="tag tag-purple">形态：单轮纯对话 (非 Agent)</span>
+          </div>
+        </div>
+
+        <!-- Claude 规格 -->
+        <div class="spec-badge-box claude">
+          <div class="spec-model-name">🟧 Anthropic Claude Opus 5.5</div>
+          <div class="spec-tags">
+            <span class="tag tag-orange">平台：对话平台 (Chat)</span>
+            <span class="tag tag-orange">思考强度：极高 (High Thinking)</span>
+            <span class="tag tag-purple">形态：单轮纯对话 (非 Agent)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 播放与对比展示区 -->
+    <div class="display-container mode-split" id="display-container">
+      
+      <!-- 模型 1: Gemini 4 Argon -->
+      <div class="model-card" id="card-gemini">
+        <div class="model-header">
+          <div class="model-title-group">
+            <span class="model-name">🔷 Google Gemini 4 Argon</span>
+            <span class="model-tag">Google AI Studio · 思考强度最高</span>
+          </div>
+          <div class="model-actions">
+            <button class="icon-btn" onclick="reloadIframe('frame-gemini')">🔄 刷新</button>
+            <a class="icon-btn" href="./gemini-pelican.html" target="_blank">↗ 全屏独立窗口</a>
+          </div>
+        </div>
+        <div class="iframe-wrapper">
+          <iframe id="frame-gemini" src="./gemini-pelican.html" loading="lazy"></iframe>
+        </div>
+      </div>
+
+      <!-- 模型 2: Claude Opus 5.5 -->
+      <div class="model-card" id="card-claude">
+        <div class="model-header">
+          <div class="model-title-group">
+            <span class="model-name">🟧 Anthropic Claude Opus 5.5</span>
+            <span class="model-tag">对话平台 · 思考强度极高 (非 Agent)</span>
+          </div>
+          <div class="model-actions">
+            <button class="icon-btn" onclick="reloadIframe('frame-claude')">🔄 刷新</button>
+            <a class="icon-btn" href="./claude-pelican.html" target="_blank">↗ 全屏独立窗口</a>
+          </div>
+        </div>
+        <div class="iframe-wrapper">
+          <iframe id="frame-claude" src="./claude-pelican.html" loading="lazy"></iframe>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 评测总结表 -->
+    <div class="benchmark-footer">
+      <h3>📊 技术亮点与评测分析</h3>
+      <div class="comparison-grid">
+        <div class="comp-item gemini">
+          <h4>🔷 Gemini 4 Argon (Google AI Studio 最高思考)</h4>
+          <p>
+            • <strong>视觉与交互</strong>：构建了完整的道路视差滚动场景，配备拟物化浮动控制栏与平滑速度调节滑块。<br>
+            • <strong>空间结构</strong>：鹈鹕喉囊体态丰满，前后车轮轮辐动态逼真，翅膀自然前伸贴合车把。
+          </p>
+        </div>
+        <div class="comp-item claude">
+          <h4>🟧 Claude Opus 5.5 (对话平台极高思考 · 非智能体)</h4>
+          <p>
+            • <strong>物理连杆</strong>：展现了极其精准的 SVG 机械几何计算，脚踏板与脚掌关节贴合度极高，无脱节穿模。<br>
+            • <strong>代码质感</strong>：纯矢量绘制，动画节奏韵律感极强，提供播放/暂停与速度倍率控制。
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>AI 代码生成与动画能力对比评测 · Gemini 4 Argon vs Claude Opus 5.5 · 托管于 GitHub Pages</p>
+  </footer>
+
+  <script>
+    const container = document.getElementById('display-container');
+    const cardGemini = document.getElementById('card-gemini');
+    const cardClaude = document.getElementById('card-claude');
+    const navButtons = document.querySelectorAll('.nav-btn');
+
+    function setActiveBtn(id) {
+      navButtons.forEach(btn => btn.classList.remove('active'));
+      const active = document.getElementById(id);
+      if (active) active.classList.add('active');
+    }
+
+    function switchView(mode) {
+      if (mode === 'split') {
+        container.className = 'display-container mode-split';
+        cardGemini.style.display = 'flex';
+        cardClaude.style.display = 'flex';
+        setActiveBtn('btn-split');
+      } else if (mode === 'gemini') {
+        container.className = 'display-container mode-single';
+        cardGemini.style.display = 'flex';
+        cardClaude.style.display = 'none';
+        setActiveBtn('btn-gemini');
+      } else if (mode === 'claude') {
+        container.className = 'display-container mode-single';
+        cardGemini.style.display = 'none';
+        cardClaude.style.display = 'flex';
+        setActiveBtn('btn-claude');
+      }
+    }
+
+    function reloadIframe(id) {
+      const frame = document.getElementById(id);
+      if (frame) {
+        frame.src = frame.src;
+      }
+    }
+  </script>
+</body>
+</html>
